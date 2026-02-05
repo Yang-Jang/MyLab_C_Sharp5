@@ -1,0 +1,58 @@
+@model Bai1_._1.Models.Product
+
+@{
+    ViewData["Title"] = "Thêm Sản Phẩm";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+            
+            <div class="card card-modern">
+                <div class="card-header card-header-mint text-center">
+                    <h4 class="mb-0"><i class="fa-solid fa-layer-group me-2"></i>Thêm Sản Phẩm Mới</h4>
+                </div>
+                
+                <div class="card-body p-4">
+                    @if (ViewBag.Error != null)
+                    {
+                        <div class="alert alert-danger d-flex align-items-center mb-4">
+                            <i class="fa-solid fa-triangle-exclamation me-2"></i>
+                            <div>@ViewBag.Error</div>
+                        </div>
+                    }
+
+                    <form asp-action="Create" method="post">
+                        <div class="form-floating mb-3">
+                            <input asp-for="Name" class="form-control" id="floatingName" placeholder="Tên sản phẩm" required />
+                            <label for="floatingName">Tên sản phẩm</label>
+                        </div>
+
+                        <div class="input-group mb-3">
+                            <span class="input-group-text bg-white text-success fw-bold">$</span>
+                            <div class="form-floating">
+                                <input asp-for="Price" type="number" class="form-control" id="floatingPrice" placeholder="Giá" required />
+                                <label for="floatingPrice">Giá bán</label>
+                            </div>
+                        </div>
+
+                        <div class="form-floating mb-4">
+                            <textarea asp-for="Description" class="form-control" id="floatingDesc" placeholder="Mô tả" style="height: 100px"></textarea>
+                            <label for="floatingDesc">Mô tả chi tiết</label>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a asp-action="Index" class="btn btn-light text-muted me-md-2">
+                                <i class="fa-solid fa-arrow-left me-1"></i> Quay lại
+                            </a>
+                            <button type="submit" class="btn btn-mint px-4">
+                                <i class="fa-solid fa-save me-1"></i> Lưu Dữ Liệu
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

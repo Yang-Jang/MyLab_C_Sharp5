@@ -1,0 +1,76 @@
+@model IEnumerable<Bai1_._1.Models.Product>
+
+@{
+    ViewData["Title"] = "Quản Lý Sản Phẩm";
+    Layout = "_Layout"; 
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-dark mb-1">Danh Sách Sản Phẩm</h2>
+            <p class="text-muted mb-0">Quản lý kho hàng của bạn hiệu quả hơn</p>
+        </div>
+        <a asp-action="Create" class="btn btn-mint shadow-sm text-white" style="background-color: var(--primary-mint);">
+            <i class="fa-solid fa-plus me-2"></i>Thêm Mới
+        </a>
+    </div>
+
+    @if (ViewBag.Message != null)
+    {
+        <div class="alert alert-success border-0 shadow-sm mb-4" style="background-color: #e3fcf7; color: #0f5132;">
+            <i class="fa-solid fa-check-circle me-2"></i> @ViewBag.Message
+        </div>
+    }
+
+    <div class="card card-modern border-0 shadow-sm" style="border-radius: 15px; overflow: hidden;">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead style="background-color: #f8f9fa;">
+                        <tr>
+                            <th class="ps-4 py-3 text-uppercase text-secondary" style="font-size: 0.85rem;">ID</th>
+                            <th class="py-3 text-uppercase text-secondary" style="font-size: 0.85rem;">Tên Sản Phẩm</th>
+                            <th class="py-3 text-uppercase text-secondary" style="font-size: 0.85rem;">Giá Bán</th>
+                            <th class="py-3 text-uppercase text-secondary" style="font-size: 0.85rem;">Mô Tả</th>
+                            <th class="text-center py-3 text-uppercase text-secondary" style="font-size: 0.85rem;">Hành Động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Any())
+                        {
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="ps-4 fw-bold text-muted">#@item.Id</td>
+                                    <td class="fw-bold text-dark">@item.Name</td>
+                                    <td class="text-success fw-bold">@item.Price.ToString("N0") ₫</td>
+                                    <td class="text-muted text-truncate" style="max-width: 250px;">@item.Description</td>
+                                    <td class="text-center">
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary border-0 me-1" title="Sửa">
+                                            <i class="fa-solid fa-pen-to-square"></i>
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@item.Id" 
+                                           class="btn btn-sm btn-outline-danger border-0" 
+                                           onclick="return confirm('Bạn chắc chắn muốn xóa sản phẩm này chứ?');" title="Xóa">
+                                            <i class="fa-solid fa-trash-can"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="5" class="text-center py-5 text-muted">
+                                    <i class="fa-solid fa-box-open fa-3x mb-3 text-secondary opacity-50"></i>
+                                    <p>Chưa có dữ liệu sản phẩm nào.</p>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

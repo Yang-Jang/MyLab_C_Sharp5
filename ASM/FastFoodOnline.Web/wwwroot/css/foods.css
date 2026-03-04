@@ -248,3 +248,50 @@
     .sf-pagination .page-item.disabled .page-link {
         opacity: .55;
     }
+
+    .sf-btn-add {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px; /* Khoảng cách giữa icon và chữ */
+    padding: 8px 16px;
+    background: linear-gradient(135deg, #EE4D2D, #FF7337); /* Gradient Cam Shopee */
+    color: #fff;
+    border: none;
+    border-radius: 999px; /* Bo tròn hoàn toàn */
+    font-weight: 800;
+    font-size: 13px;
+    text-decoration: none;
+    box-shadow: 0 4px 10px rgba(238, 77, 45, 0.25); /* Đổ bóng màu cam */
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+}
+
+/* Hiệu ứng khi di chuột vào */
+.sf-btn-add:hover {
+    color: #fff;
+    transform: translateY(-2px); /* Nảy lên nhẹ */
+    box-shadow: 0 8px 20px rgba(238, 77, 45, 0.35); /* Bóng đậm hơn */
+    filter: brightness(1.05); /* Sáng hơn một chút */
+}
+
+/* Hiệu ứng khi bấm xuống */
+.sf-btn-add:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 5px rgba(238, 77, 45, 0.2);
+}
+
+/* Chỉnh lại icon bên trong nút (nếu có) */
+.sf-btn-add i {
+    font-size: 14px;
+}
+
+/* Cập nhật lại sf-food-foot để căn chỉnh đẹp hơn */
+.sf-food-foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px; /* Tăng khoảng cách với mô tả */
+    padding-top: 10px;
+    border-top: 1px dashed rgba(17, 24, 39, .1); /* Thêm đường kẻ mờ ngăn cách */
+}

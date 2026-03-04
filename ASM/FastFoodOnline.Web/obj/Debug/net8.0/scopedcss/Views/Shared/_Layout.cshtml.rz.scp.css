@@ -8,13 +8,17 @@ a.navbar-brand[b-haa4023cjs] {
 }
 
 a[b-haa4023cjs] {
-  color: #0077cc;
+  color: #EE4D2D;
+  text-decoration: none;
+}
+a:hover[b-haa4023cjs] {
+    color: #d73211;
 }
 
 .btn-primary[b-haa4023cjs] {
   color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
+  background-color: #EE4D2D;
+  border-color: #EE4D2D;
 }
 
 .nav-pills .nav-link.active[b-haa4023cjs], .nav-pills .show > .nav-link[b-haa4023cjs] {

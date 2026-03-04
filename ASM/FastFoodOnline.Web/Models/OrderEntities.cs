@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Identity;
 
 namespace FastFoodOnline.Web.Models
@@ -65,6 +66,10 @@ namespace FastFoodOnline.Web.Models
         
         public int Quantity { get; set; }
         public decimal UnitPrice { get; set; }
-        public decimal LineTotal => Quantity * UnitPrice;
+
+        // [NotMapped]
+        // public decimal LineTotal => Quantity * UnitPrice;
+
+        public decimal LineTotal { get; set; }
     }
 }

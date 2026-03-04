@@ -1,7 +1,7 @@
 @model FastFoodOnline.Web.Models.Cart
 @{
     ViewData["Title"] = "Giỏ hàng";
-    decimal total = Model.Items?.Sum(i => i.Quantity * i.UnitPrice) ?? 0;
+    decimal total = Model?.Items?.Sum(i => i.Quantity * i.UnitPrice) ?? 0;
 }
 
 @section Styles {
@@ -19,13 +19,13 @@
             </a>
         </div>
 
-        @if (Model.Items == null || !Model.Items.Any())
+        @if (Model == null || Model.Items == null || !Model.Items.Any())
         {
             <div class="sf-empty-card">
-                <div class="sf-empty-ic"><i class="fa-regular fa-face-frown"></i></div>
+                <div class="sf-empty-ic"><i class="fa-solid fa-basket-shopping"></i></div>
                 <div class="sf-empty-title">Giỏ hàng đang trống</div>
                 <div class="sf-empty-sub">Hãy chọn thêm món ngon và quay lại thanh toán nhé.</div>
-                <a class="btn sf-btn-primary sf-btn-lg mt-2" asp-controller="Foods" asp-action="Index">
+                <a class="btn sf-btn-primary sf-btn-lg mt-3" asp-controller="Foods" asp-action="Index">
                     <i class="fa-solid fa-magnifying-glass me-2"></i>Đi chọn món
                 </a>
             </div>
@@ -33,7 +33,6 @@
         else
         {
             <div class="row g-3">
-                <!-- Left: items -->
                 <div class="col-12 col-lg-8">
                     <div class="sf-card">
                         <div class="sf-card-head">
@@ -46,14 +45,14 @@
                             <div class="sf-cart-list">
                                 @foreach (var item in Model.Items)
                                 {
-                                    var name = item.Food != null ? item.Food.Name : item.Combo?.Name;
-                                    var img = item.Food != null ? item.Food.ImageUrl : item.Combo?.ImageUrl;
-                                    var isCombo = item.Combo != null;
+                                    var name = item.Food?.Name ?? item.Combo?.Name ?? "Món";
+                                    var img = item.Food?.ImageUrl ?? item.Combo?.ImageUrl;
+                                    var isCombo = item.ComboId != null;
 
                                     <div class="sf-cart-item">
                                         <div class="sf-item-left">
                                             <div class="sf-item-thumb">
-                                                <img src="@img" alt="@name" loading="lazy" />
+                                                <img src="@img" alt="@name" loading="lazy" onerror="this.src='https://placehold.co/60x60?text=IMG'"/>
                                             </div>
 
                                             <div class="sf-item-info">
@@ -61,7 +60,7 @@
                                                 <div class="sf-item-meta">
                                                     @if (isCombo)
                                                     {
-                                                        <span class="sf-tag"><i class="fa-solid fa-tags me-2"></i>Combo</span>
+                                                        <span class="sf-tag"><i class="fa-solid fa-tags me-1"></i>Combo</span>
                                                     }
                                                     <span class="sf-muted">Đơn giá:</span>
                                                     <span class="sf-item-unit">@item.UnitPrice.ToString("N0") đ</span>
@@ -70,24 +69,19 @@
                                         </div>
 
                                         <div class="sf-item-right">
-                                            <!-- Quantity stepper (auto submit) -->
+                                            
                                             <form asp-action="UpdateQuantity" method="post" class="sf-qty-form">
                                                 @Html.AntiForgeryToken()
                                                 <input type="hidden" name="itemId" value="@item.Id" />
 
                                                 <div class="sf-qty-stepper">
-                                                    <button type="button" class="sf-qty-btn" data-action="minus" aria-label="Giảm số lượng">
+                                                    <button type="submit" name="quantity" value="@(item.Quantity - 1)" class="sf-qty-btn">
                                                         <i class="fa-solid fa-minus"></i>
                                                     </button>
 
-                                                    <input type="number"
-                                                           class="sf-qty-input"
-                                                           name="quantity"
-                                                           value="@item.Quantity"
-                                                           min="1" max="50"
-                                                           inputmode="numeric" />
+                                                    <input type="number" class="sf-qty-input" value="@item.Quantity" readonly />
 
-                                                    <button type="button" class="sf-qty-btn" data-action="plus" aria-label="Tăng số lượng">
+                                                    <button type="submit" name="quantity" value="@(item.Quantity + 1)" class="sf-qty-btn">
                                                         <i class="fa-solid fa-plus"></i>
                                                     </button>
                                                 </div>
@@ -108,16 +102,15 @@
                                     </div>
                                 }
                             </div>
-
-                            <div class="sf-cart-note">
+                            
+                            <div class="mt-3 text-muted small">
                                 <i class="fa-regular fa-lightbulb me-2"></i>
-                                Bạn có thể tăng/giảm số lượng, hệ thống sẽ tự cập nhật.
+                                Bạn có thể tăng/giảm số lượng, hệ thống sẽ tự cập nhật giá tiền.
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Right: summary -->
                 <div class="col-12 col-lg-4">
                     <div class="sf-card sf-sticky">
                         <div class="sf-card-head">
@@ -132,7 +125,6 @@
                                     <span class="sf-muted">Tạm tính</span>
                                     <span class="fw-bold">@total.ToString("N0") đ</span>
                                 </div>
-
                                 <div class="sf-summary-row">
                                     <span class="sf-muted">Phí giao hàng</span>
                                     <span class="fw-bold">0 đ</span>
@@ -145,58 +137,28 @@
                                     <span class="sf-total">@total.ToString("N0") đ</span>
                                 </div>
 
-                                <a asp-controller="Checkout" asp-action="Index" class="btn sf-btn-primary sf-btn-lg w-100 mt-2">
+                                <a asp-controller="Checkout" asp-action="Index" class="btn sf-btn-primary sf-btn-lg w-100 mt-3">
                                     <i class="fa-solid fa-credit-card me-2"></i>Thanh toán
                                 </a>
 
                                 <div class="sf-summary-note">
-                                    Tip: Kiểm tra lại địa chỉ và số điện thoại ở bước thanh toán.
+                                    Tip: Kiểm tra lại địa chỉ và số điện thoại ở bước thanh toán tiếp theo.
+                                </div>
+                                
+                                <div class="text-center mt-2">
+                                    <form asp-action="Clear" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-link text-danger text-decoration-none btn-sm fw-bold" 
+                                                onclick="return confirm('Xóa hết giỏ hàng?');">
+                                            <i class="fa-solid fa-broom me-1"></i>Xóa tất cả
+                                        </button>
+                                    </form>
                                 </div>
                             </div>
                         </div>
-                    </div>
-
-                    <div class="sf-help mt-3">
-                        <i class="fa-solid fa-circle-info me-2"></i>
-                        Cần hỗ trợ? Liên hệ <strong>1900-xxxx</strong>
                     </div>
                 </div>
             </div>
         }
     </div>
 </div>
-
-@section Scripts {
-    <script>
-        (function () {
-            // Stepper +/-: chỉnh số lượng rồi auto submit form UpdateQuantity
-            document.querySelectorAll('.sf-qty-form').forEach(form => {
-                const input = form.querySelector('.sf-qty-input');
-                const minus = form.querySelector('[data-action="minus"]');
-                const plus = form.querySelector('[data-action="plus"]');
-                if (!input || !minus || !plus) return;
-
-                const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
-                const min = parseInt(input.min || "1", 10);
-                const max = parseInt(input.max || "50", 10);
-
-                const submit = () => form.submit();
-
-                const update = (delta) => {
-                    const cur = parseInt(input.value || "1", 10);
-                    input.value = clamp((isNaN(cur) ? 1 : cur) + delta, min, max);
-                    submit();
-                };
-
-                minus.addEventListener('click', () => update(-1));
-                plus.addEventListener('click', () => update(1));
-
-                input.addEventListener('change', () => {
-                    const cur = parseInt(input.value || "1", 10);
-                    input.value = clamp(isNaN(cur) ? 1 : cur, min, max);
-                    submit();
-                });
-            });
-        })();
-    </script>
-}

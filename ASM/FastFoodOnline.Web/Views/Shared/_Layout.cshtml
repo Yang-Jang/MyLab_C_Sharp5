@@ -20,11 +20,10 @@
 
     @await RenderSectionAsync("Styles", required: false)
 </head>
-<partial name="_Toast" />
-
 
 <body class="sf-body">
-    <!-- Top bar -->
+    <partial name="_Toast" />
+
     <div class="sf-topbar d-none d-md-block">
         <div class="container sf-container">
             <div class="d-flex align-items-center justify-content-between py-2">
@@ -47,7 +46,6 @@
         </div>
     </div>
 
-    <!-- Main header -->
     <header class="sf-header sticky-top">
         <div class="container sf-container">
             <div class="sf-header-inner">
@@ -56,7 +54,6 @@
                     <span class="sf-brand-text">FastFood</span>
                 </a>
 
-                <!-- Search -->
                 <form class="sf-search sf-search-compact d-none d-lg-flex"
                       asp-controller="Foods" asp-action="Index" method="get" role="search" aria-label="Tìm món">
 
@@ -71,17 +68,17 @@
                     </button>
                 </form>
 
-                <!-- Actions -->
                 <div class="sf-actions flex-nowrap">
 
                     <a class="btn sf-btn-ghost d-none d-md-inline-flex" asp-area="" asp-controller="Foods" asp-action="Index">
                         <i class="fa-solid fa-utensils me-2"></i>Đặt món
                     </a>
 
-                    <!-- Cart icon (badge demo). Nếu bạn có CartCount thì thay 0 bằng biến -->
-                    <a class="sf-cart" asp-area="" asp-controller="Cart" asp-action="Index" title="Giỏ hàng">
+                    <a class="nav-link position-relative" asp-controller="Cart" asp-action="Index">
                         <i class="fa-solid fa-cart-shopping"></i>
-                        <span class="sf-cart-badge">0</span>
+                        <span id="cartBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">
+                            0
+                        </span>
                     </a>
 
                     <div class="sf-login sf-auth-nowrap">
@@ -89,14 +86,12 @@
                     </div>
 
 
-                    <!-- Mobile menu -->
                     <button class="btn sf-btn-ghost d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#sfMobileMenu" aria-controls="sfMobileMenu">
                         <i class="fa-solid fa-bars"></i>
                     </button>
                 </div>
             </div>
 
-            <!-- Nav pills -->
             <nav class="sf-nav d-none d-lg-flex" aria-label="Điều hướng">
                 <a class="sf-nav-link" asp-area="" asp-controller="Home" asp-action="Index">
                     <i class="fa-solid fa-house me-2"></i>Trang chủ
@@ -109,7 +104,6 @@
                 </a>
             </nav>
 
-            <!-- Mobile search -->
             <div class="sf-mobile-search d-lg-none">
                 <form class="sf-search sf-search-mobile"
                       asp-controller="Foods" asp-action="Index" method="get" role="search" aria-label="Tìm món (mobile)">
@@ -126,7 +120,6 @@
         </div>
     </header>
 
-    <!-- Content -->
     <main role="main" class="sf-main">
         <div class="container sf-container">
             <partial name="_StatusMessage" />
@@ -137,7 +130,6 @@
         </div>
     </main>
 
-    <!-- Footer -->
     <footer class="sf-footer">
         <div class="container sf-container">
             <div class="row g-3">
@@ -167,7 +159,6 @@
         </div>
     </footer>
 
-    <!-- Location Modal (demo UI) -->
     <div class="modal fade" id="sfLocationModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content sf-modal">
@@ -192,7 +183,6 @@
         </div>
     </div>
 
-    <!-- Mobile Offcanvas -->
     <div class="offcanvas offcanvas-end sf-offcanvas" tabindex="-1" id="sfMobileMenu" aria-labelledby="sfMobileMenuLabel">
         <div class="offcanvas-header">
             <div class="d-flex align-items-center">
@@ -213,20 +203,38 @@
         </div>
     </div>
 
+    <div id="clientToast" class="sf-toast" role="alert" aria-live="polite" aria-atomic="true">
+        <div class="sf-toast-ic" id="clientToastIcon">
+            <i class="fa-solid fa-circle-info"></i>
+        </div>
+        <div class="sf-toast-content">
+            <div class="sf-toast-title" id="clientToastTitle">Thông báo</div>
+            <div class="sf-toast-msg" id="clientToastMsg">Nội dung thông báo...</div>
+        </div>
+        <button type="button" class="sf-toast-close" onclick="document.getElementById('clientToast').classList.remove('show')">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+    </div>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
 
     <script>
-        // Active nav highlight (giống app: nhìn phát biết đang ở đâu)
-        (function () {
+        document.addEventListener("DOMContentLoaded", function() {
+            // 1. Highlight Active Menu
             const path = (location.pathname || "").toLowerCase();
             document.querySelectorAll(".sf-nav-link").forEach(a => {
                 const href = (a.getAttribute("href") || "").toLowerCase();
                 if (!href) return;
                 if (path === href || (href !== "/" && path.startsWith(href))) a.classList.add("active");
             });
-        })();
+
+            // 2. Tự động cập nhật số giỏ hàng mỗi khi tải trang
+            if (typeof refreshCartBadge === 'function') {
+                refreshCartBadge();
+            }
+        });
     </script>
 
     @await RenderSectionAsync("Scripts", required: false)

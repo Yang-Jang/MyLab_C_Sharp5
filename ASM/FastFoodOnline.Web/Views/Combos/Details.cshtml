@@ -10,119 +10,92 @@
 <div class="container sf-container">
     <div class="sf-detail">
 
-        <!-- Breadcrumb -->
-        <nav class="sf-breadcrumb" aria-label="breadcrumb">
-            <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item">
-                    <a asp-controller="Home" asp-action="Index">Trang chủ</a>
-                </li>
-                <li class="breadcrumb-item">
-                    <a asp-controller="Combos" asp-action="Index">Combo</a>
-                </li>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb sf-breadcrumb mb-4">
+                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Trang chủ</a></li>
+                <li class="breadcrumb-item"><a asp-controller="Combos" asp-action="Index">Combo</a></li>
                 <li class="breadcrumb-item active" aria-current="page">@Model.Name</li>
             </ol>
         </nav>
 
-        <div class="row g-3 mt-1">
-            <!-- Left: Image -->
-            <div class="col-12 col-lg-6">
-                <div class="sf-detail-media">
-                    <img src="@Model.ImageUrl" alt="@Model.Name" loading="lazy" />
-                    <div class="sf-media-badges">
-                        <span class="sf-pill sf-pill-deal"><i class="fa-solid fa-tags me-2"></i>Combo Deal</span>
+        <div class="row g-4 align-items-stretch">
+            
+            <div class="col-lg-6">
+                <div class="sf-media-card">
+                    <img src="@Model.ImageUrl" alt="@Model.Name" class="sf-media-img" loading="lazy" />
+                    <div class="sf-badge-float">
+                        <i class="fa-solid fa-fire me-2"></i>Bán chạy
                     </div>
                 </div>
             </div>
 
-            <!-- Right: Info -->
-            <div class="col-12 col-lg-6">
-                <div class="sf-detail-card">
-                    <div class="sf-detail-head">
-                        <h1 class="sf-detail-title">@Model.Name</h1>
-                        <div class="sf-detail-price">@Model.Price.ToString("N0") đ</div>
+            <div class="col-lg-6">
+                <div class="sf-info-card">
+                    
+                    <h1 class="sf-title">@Model.Name</h1>
+                    <div class="sf-price-tag">
+                        @Model.Price.ToString("N0") <small style="font-size: 0.6em">₫</small>
                     </div>
 
-                    <p class="sf-detail-desc">@Model.Description</p>
+                    <p class="sf-desc">@Model.Description</p>
 
-                    <!-- Includes -->
-                    <div class="sf-includes">
-                        <div class="sf-includes-title">
-                            <i class="fa-solid fa-box-open me-2"></i>Gồm những món sau
+                    <div class="sf-menu-list">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fa-solid fa-utensils text-primary me-2"></i>
+                            <span class="fw-bold text-dark">Bao gồm các món:</span>
                         </div>
-
-                        <div class="sf-includes-list">
-                            @if (Model.ComboItems != null && Model.ComboItems.Any())
+                        
+                        @if (Model.ComboItems != null && Model.ComboItems.Any())
+                        {
+                            foreach (var item in Model.ComboItems)
                             {
-                                foreach (var item in Model.ComboItems)
-                                {
-                                    <div class="sf-include-item">
-                                        <div class="sf-include-left">
-                                            <span class="sf-qty-tag">x @item.Quantity</span>
-                                            <div class="sf-include-name">@item.Food?.Name</div>
-                                        </div>
-                                        <div class="sf-include-right">
-                                            <div class="sf-include-price">@(item.Food?.Price.ToString("N0")) đ</div>
-                                            <div class="sf-muted small">/ món</div>
-                                        </div>
+                                <div class="sf-menu-item">
+                                    <div>
+                                        <span class="badge bg-danger rounded-pill me-2">x@item.Quantity</span>
+                                        <span class="fw-semibold text-dark">@item.Food?.Name</span>
                                     </div>
-                                }
-                            }
-                            else
-                            {
-                                <div class="sf-empty">
-                                    Combo chưa có danh sách món.
+                                    <span class="text-muted small">@item.Food?.Price.ToString("N0") đ</span>
                                 </div>
                             }
-                        </div>
+                        }
+                        else
+                        {
+                            <div class="text-muted fst-italic">Đang cập nhật danh sách món...</div>
+                        }
                     </div>
 
-                    <!-- Order box -->
-                    <div class="sf-order-box">
+                    <div class="sf-action-area">
                         <form asp-controller="Cart" asp-action="AddCombo" method="post" class="sf-order-form">
                             @Html.AntiForgeryToken()
                             <input type="hidden" name="comboId" value="@Model.Id" />
 
-                            <div class="sf-qty">
-                                <div class="sf-qty-label">
-                                    Số lượng
-                                    <span class="sf-muted small"> (tối đa 10)</span>
+                            <div class="row g-3 align-items-end">
+                                <div class="col-sm-5">
+                                    <label class="fw-bold mb-2 d-block text-dark">Số lượng:</label>
+                                    <div class="sf-stepper w-100 justify-content-between">
+                                        <button type="button" class="sf-step-btn" id="qtyMinus"><i class="fa-solid fa-minus"></i></button>
+                                        <input type="number" id="quantity" name="quantity" value="1" min="1" max="10" class="sf-step-input" readonly />
+                                        <button type="button" class="sf-step-btn" id="qtyPlus"><i class="fa-solid fa-plus"></i></button>
+                                    </div>
                                 </div>
 
-                                <div class="sf-qty-stepper">
-                                    <button type="button" class="sf-qty-btn" id="qtyMinus" aria-label="Giảm số lượng">
-                                        <i class="fa-solid fa-minus"></i>
-                                    </button>
-
-                                    <input type="number"
-                                           id="quantity"
-                                           name="quantity"
-                                           value="1"
-                                           min="1"
-                                           max="10"
-                                           class="sf-qty-input"
-                                           inputmode="numeric" />
-
-                                    <button type="button" class="sf-qty-btn" id="qtyPlus" aria-label="Tăng số lượng">
-                                        <i class="fa-solid fa-plus"></i>
+                                <div class="col-sm-7">
+                                    <button type="submit" class="btn-add-cart">
+                                        <i class="fa-solid fa-cart-shopping me-2"></i>Thêm vào giỏ
                                     </button>
                                 </div>
                             </div>
 
-                            <div class="sf-order-actions">
-                                <button type="submit" class="btn sf-btn-primary sf-btn-lg w-100">
-                                    <i class="fa-solid fa-cart-plus me-2"></i>Thêm combo vào giỏ
-                                </button>
-
-                                <a class="btn sf-btn-ghost sf-btn-lg w-100"
-                                   asp-controller="Combos" asp-action="Index">
-                                    <i class="fa-solid fa-arrow-left me-2"></i>Quay lại Combo
-                                </a>
-                            </div>
-
-                            <div class="sf-order-note">
-                                <i class="fa-regular fa-clock me-2"></i>Dự kiến giao: 20–35 phút
-                                <span class="sf-dot"></span>
-                                <i class="fa-solid fa-tags me-2"></i>Deal tiết kiệm
+                            <div class="row mt-3">
+                                <div class="col-12">
+                                    <a asp-controller="Combos" asp-action="Index" class="btn-back">
+                                        <i class="fa-solid fa-arrow-left me-2"></i>Xem combo khác
+                                    </a>
+                                </div>
+                                <div class="col-12 mt-3 text-center text-muted small">
+                                    <i class="fa-solid fa-shield-halved me-1"></i> Đảm bảo chất lượng &bull;
+                                    <i class="fa-solid fa-truck-fast me-1 ms-2"></i> Giao hàng siêu tốc
+                                </div>
                             </div>
                         </form>
                     </div>
@@ -135,30 +108,59 @@
 
 @section Scripts {
     <script>
-        (function () {
+        document.addEventListener("DOMContentLoaded", function () {
+            
+            // 1. Logic Tăng Giảm Số Lượng
             const input = document.getElementById("quantity");
-            const minus = document.getElementById("qtyMinus");
-            const plus = document.getElementById("qtyPlus");
-            if (!input || !minus || !plus) return;
+            const btnMinus = document.getElementById("qtyMinus");
+            const btnPlus = document.getElementById("qtyPlus");
 
-            const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
-            const getMin = () => parseInt(input.min || "1", 10);
-            const getMax = () => parseInt(input.max || "10", 10);
+            if(input && btnMinus && btnPlus) {
+                const updateQty = (change) => {
+                    let val = parseInt(input.value || 1) + change;
+                    if(val < 1) val = 1;
+                    if(val > 10) val = 10;
+                    input.value = val;
+                };
+                
+                btnMinus.addEventListener("click", () => updateQty(-1));
+                btnPlus.addEventListener("click", () => updateQty(1));
+            }
 
-            const update = (delta) => {
-                const min = getMin(), max = getMax();
-                const current = parseInt(input.value || "1", 10);
-                input.value = clamp(current + delta, min, max);
-            };
+            // 2. Logic AJAX Add To Cart (Giữ nguyên)
+            const form = document.querySelector('.sf-order-form');
+            if (form) {
+                form.addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    
+                    const btn = this.querySelector('button[type="submit"]');
+                    const oldHtml = btn.innerHTML;
+                    
+                    // Hiệu ứng Loading
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
 
-            minus.addEventListener("click", () => update(-1));
-            plus.addEventListener("click", () => update(1));
+                    const formData = new FormData(this);
 
-            input.addEventListener("input", () => {
-                const min = getMin(), max = getMax();
-                const current = parseInt(input.value || "1", 10);
-                input.value = clamp(isNaN(current) ? 1 : current, min, max);
-            });
-        })();
+                    fetch(this.action, { method: 'POST', body: formData })
+                        .then(r => r.ok ? r.json() : Promise.reject(r))
+                        .then(data => {
+                            if(data.success) {
+                                if(typeof refreshCartBadge === 'function') refreshCartBadge();
+                                if(typeof showToast === 'function') showToast('success', data.message);
+                            } else {
+                                if(typeof showToast === 'function') showToast('error', data.message);
+                            }
+                        })
+                        .catch(() => {
+                            if(typeof showToast === 'function') showToast('error', 'Lỗi kết nối server!');
+                        })
+                        .finally(() => {
+                            btn.disabled = false;
+                            btn.innerHTML = oldHtml;
+                        });
+                });
+            }
+        });
     </script>
 }

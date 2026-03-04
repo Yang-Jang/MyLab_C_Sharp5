@@ -61,89 +61,86 @@ namespace FastFoodOnline.Web.Controllers
             return View(cart);
         }
 
-        // ===== ADD FOOD =====
+        // ===== 1. API GET CART COUNT (Cho JavaScript gọi) =====
+        [HttpGet]
+        [AllowAnonymous] 
+        public async Task<IActionResult> GetCartCount()
+        {
+            var userId = _userManager.GetUserId(User);
+            if (string.IsNullOrEmpty(userId)) return Ok(0);
+
+            var count = await _context.CartItems
+                .Where(c => c.Cart.UserId == userId)
+                .SumAsync(c => c.Quantity);
+
+            return Ok(count);
+        }
+
+        // ===== 2. ADD FOOD (AJAX JSON) =====
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddFood(int foodId, int quantity = 1)
         {
             quantity = ClampQuantity(quantity);
-
             var food = await _context.Foods.FirstOrDefaultAsync(f => f.Id == foodId);
-            if (food == null)
-            {
-                this.Toast("Món ăn không tồn tại.", "error");
-                return RedirectToAction(nameof(Index));
-            }
-
-            // (optional) nếu có IsAvailable thì check
-            // if (!food.IsAvailable) { this.Toast("Món này hiện không còn bán.", "warning"); return RedirectToAction(nameof(Index)); }
+            if (food == null) return NotFound(new { message = "Món không tồn tại" });
 
             var cart = await GetOrCreateCartAsync();
-
             var existingItem = cart.Items?.FirstOrDefault(i => i.FoodId == foodId);
+
             if (existingItem != null)
             {
                 existingItem.Quantity = ClampQuantity(existingItem.Quantity + quantity);
-
-                // snapshot đơn giá nếu bạn muốn giữ đúng "giá lúc add"
-                // existingItem.UnitPrice = existingItem.UnitPrice; // giữ nguyên
             }
             else
             {
-                var newItem = new CartItem
+                _context.CartItems.Add(new CartItem
                 {
-                    CartId = cart.Id,
-                    FoodId = foodId,
-                    Quantity = quantity,
-                    UnitPrice = food.Price // snapshot tại thời điểm add
-                };
-                _context.CartItems.Add(newItem);
+                    CartId = cart.Id, 
+                    FoodId = foodId, 
+                    Quantity = quantity, 
+                    UnitPrice = food.Price
+                });
             }
 
             await _context.SaveChangesAsync();
-            this.Toast("Đã thêm món vào giỏ.", "success");
-            return RedirectToAction(nameof(Index));
+
+            // Trả về JSON để JS xử lý mà không cần reload trang
+            return Ok(new { success = true, message = "Đã thêm món vào giỏ!" });
         }
 
-        // ===== ADD COMBO =====
+        // ===== 3. ADD COMBO (AJAX JSON) =====
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddCombo(int comboId, int quantity = 1)
         {
             quantity = ClampQuantity(quantity);
-
             var combo = await _context.Combos.FirstOrDefaultAsync(c => c.Id == comboId);
-            if (combo == null)
-            {
-                this.Toast("Combo không tồn tại.", "error");
-                return RedirectToAction(nameof(Index));
-            }
+            if (combo == null) return NotFound(new { message = "Combo không tồn tại" });
 
             var cart = await GetOrCreateCartAsync();
-
             var existingItem = cart.Items?.FirstOrDefault(i => i.ComboId == comboId);
+
             if (existingItem != null)
             {
                 existingItem.Quantity = ClampQuantity(existingItem.Quantity + quantity);
             }
             else
             {
-                var newItem = new CartItem
+                _context.CartItems.Add(new CartItem
                 {
-                    CartId = cart.Id,
-                    ComboId = comboId,
-                    Quantity = quantity,
-                    UnitPrice = combo.Price // snapshot tại thời điểm add
-                };
-                _context.CartItems.Add(newItem);
+                    CartId = cart.Id, 
+                    ComboId = comboId, 
+                    Quantity = quantity, 
+                    UnitPrice = combo.Price
+                });
             }
 
             await _context.SaveChangesAsync();
-            this.Toast("Đã thêm combo vào giỏ.", "success");
-            return RedirectToAction(nameof(Index));
+            return Ok(new { success = true, message = "Đã thêm combo vào giỏ!" });
         }
 
-        // ===== UPDATE QUANTITY =====
+        // ===== UPDATE QUANTITY (Giữ nguyên Redirect cho trang Cart) =====
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateQuantity(int itemId, int quantity)
@@ -151,7 +148,6 @@ namespace FastFoodOnline.Web.Controllers
             var userId = GetUserId();
             quantity = ClampQuantity(quantity);
 
-            // Đảm bảo item thuộc cart của user hiện tại
             var item = await _context.CartItems
                 .Include(ci => ci.Cart)
                 .FirstOrDefaultAsync(ci => ci.Id == itemId && ci.Cart.UserId == userId);
@@ -165,14 +161,10 @@ namespace FastFoodOnline.Web.Controllers
             item.Quantity = quantity;
             await _context.SaveChangesAsync();
 
-            // NOTE: stepper auto-submit nên thường KHÔNG toast (tránh spam)
-            // Nếu bạn muốn toast, mở dòng dưới:
-            // this.Toast("Đã cập nhật số lượng.", "success");
-
             return RedirectToAction(nameof(Index));
         }
 
-        // ===== REMOVE ITEM =====
+        // ===== REMOVE ITEM (Giữ nguyên Redirect cho trang Cart) =====
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Remove(int itemId)
@@ -196,7 +188,7 @@ namespace FastFoodOnline.Web.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // (optional) CLEAR CART
+        // ===== CLEAR CART =====
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Clear()

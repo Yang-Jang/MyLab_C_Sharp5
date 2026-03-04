@@ -262,6 +262,9 @@ namespace FastFoodOnline.Web.Migrations
                     b.Property<int?>("FoodId")
                         .HasColumnType("int");
 
+                    b.Property<decimal>("LineTotal")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<int>("OrderId")
                         .HasColumnType("int");
 

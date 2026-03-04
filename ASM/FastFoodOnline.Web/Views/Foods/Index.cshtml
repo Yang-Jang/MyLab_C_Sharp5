@@ -168,11 +168,20 @@
                                 <div class="sf-food-desc">@item.Description</div>
 
                                 <div class="sf-food-foot">
-                                    <div class="sf-food-price">@item.Price.ToString("N0") đ</div>
-                                    <a class="btn sf-btn-primary sf-btn-sm" asp-action="Details" asp-route-id="@item.Id">
-                                        <i class="fa-solid fa-bag-shopping me-2"></i>Chọn
-                                    </a>
-                                </div>
+    <div class="sf-food-price">
+        @item.Price.ToString("N0") đ
+    </div>
+    
+    <form asp-controller="Cart" asp-action="AddFood" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="foodId" value="@item.Id" />
+        <button type="submit" class="sf-btn-add">
+            <i class="fa-solid fa-cart-plus"></i> Chọn
+        </button>
+    </form>
+</div>
+
+                                
                             </div>
                         </div>
                     </div>

@@ -135,30 +135,75 @@
 
 @section Scripts {
     <script>
-        (function () {
+        document.addEventListener("DOMContentLoaded", function () {
+            // Xử lý khi bấm nút "Thêm vào giỏ"
+            const form = document.querySelector('.sf-order-form');
+            if (form) {
+                form.addEventListener('submit', function (e) {
+                    e.preventDefault(); // Chặn chuyển trang
+
+                    const formData = new FormData(this);
+                    const btn = this.querySelector('button[type="submit"]');
+                    const originalText = btn.innerHTML;
+                    
+                    // Hiệu ứng loading nút
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>Đang thêm...';
+
+                    fetch(this.action, {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(res => {
+                        if (res.ok) return res.json();
+                        throw new Error('Lỗi kết nối');
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            // Gọi hàm toàn cục từ site.js
+                            refreshCartBadge(); 
+                            showToast('success', data.message); 
+                        } else {
+                            showToast('error', data.message || "Có lỗi xảy ra");
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        showToast('error', "Lỗi kết nối server.");
+                    })
+                    .finally(() => {
+                        // Trả lại trạng thái nút
+                        btn.disabled = false;
+                        btn.innerHTML = originalText;
+                    });
+                });
+            }
+
+            // Logic tăng giảm số lượng (Input)
             const input = document.getElementById("quantity");
             const minus = document.getElementById("qtyMinus");
             const plus = document.getElementById("qtyPlus");
-            if (!input || !minus || !plus) return;
 
-            const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
-            const getMin = () => parseInt(input.min || "1", 10);
-            const getMax = () => parseInt(input.max || "10", 10);
+            if (input && minus && plus) {
+                const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+                const getMin = () => parseInt(input.min || "1", 10);
+                const getMax = () => parseInt(input.max || "10", 10);
 
-            const update = (delta) => {
-                const min = getMin(), max = getMax();
-                const current = parseInt(input.value || "1", 10);
-                input.value = clamp(current + delta, min, max);
-            };
+                const update = (delta) => {
+                    const min = getMin(), max = getMax();
+                    const current = parseInt(input.value || "1", 10);
+                    input.value = clamp(current + delta, min, max);
+                };
 
-            minus.addEventListener("click", () => update(-1));
-            plus.addEventListener("click", () => update(1));
-
-            input.addEventListener("input", () => {
-                const min = getMin(), max = getMax();
-                const current = parseInt(input.value || "1", 10);
-                input.value = clamp(isNaN(current) ? 1 : current, min, max);
-            });
-        })();
+                minus.addEventListener("click", () => update(-1));
+                plus.addEventListener("click", () => update(1));
+                input.addEventListener("input", () => {
+                    const min = getMin(), max = getMax();
+                    const current = parseInt(input.value || "1", 10);
+                    input.value = clamp(isNaN(current) ? 1 : current, min, max);
+                });
+            }
+        });
     </script>
 }
+

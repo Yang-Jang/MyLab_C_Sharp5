@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FastFoodOnline.Web.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260122070206_InitialCreate")]
+    [Migration("20260206122655_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -264,6 +264,9 @@ namespace FastFoodOnline.Web.Migrations
 
                     b.Property<int?>("FoodId")
                         .HasColumnType("int");
+
+                    b.Property<decimal>("LineTotal")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("OrderId")
                         .HasColumnType("int");

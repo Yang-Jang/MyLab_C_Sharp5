@@ -27,6 +27,9 @@ namespace FastFoodOnline.Web.Data
             // Cần gọi base.OnModelCreating để Identity cấu hình các bảng của nó trước
             base.OnModelCreating(builder);
 
+            builder.Entity<OrderItem>().Ignore(oi => oi.LineTotal);
+
+
             // Cấu hình khóa chính phức hợp cho bảng ComboItem (ComboId + FoodId)
             builder.Entity<ComboItem>()
                 .HasKey(ci => new { ci.ComboId, ci.FoodId });
@@ -65,6 +68,19 @@ namespace FastFoodOnline.Web.Data
                 .WithMany()
                 .HasForeignKey(oi => oi.ComboId)
                 .IsRequired(false);
+
+            // FIX CẢNH BÁO DECIMAL (Màu vàng)
+            // Tự động set type decimal(18,2) cho tất cả các cột tiền tệ
+            foreach (var entityType in builder.Model.GetEntityTypes())
+            {
+                var properties = entityType.ClrType.GetProperties()
+                    .Where(p => p.PropertyType == typeof(decimal) || p.PropertyType == typeof(decimal?));
+
+                foreach (var property in properties)
+                {
+                    builder.Entity(entityType.Name).Property(property.Name).HasColumnType("decimal(18,2)");
+                }
+            }
         }
     }
 }
